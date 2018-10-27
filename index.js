@@ -4,6 +4,29 @@ const URL = `https://beta.todoist.com/API/v8`;
 
 const INBOX_NAME = 'Inbox';
 
+class Todo {
+  constructor(id, title, description, completed=false) {
+    this.id = id;
+    this.title = title;
+    this.description = description;
+    this.completed = completed;
+  }
+
+  static from(id, content, completed) {
+    // create a `new Todo` object using the format provided by the
+    // Todoist API, where the `content` includes the title and
+    // description.
+  }
+
+  static _parseTodo(content) {
+    // Find any URLs in the content and return an object containing a
+    // separate title and description (where the description includes
+    // the URL)
+  }
+
+  
+}
+
 class Todoist {
   constructor() {
     // this.projects = {};
