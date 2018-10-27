@@ -1,0 +1,19 @@
+
+* Example Task JSON
+
+#+BEGIN_SRC js
+
+  { id: 89358380,
+    project_id: 2151379050,
+    content:
+     'The Basics of Package.json in Node.js and Npm The Basics of Package.json in Node.js and Npm http://hn.premii.com/#/article/13832025 (Hacker News)',
+    completed: false,
+    label_ids: [],
+    order: 6,
+    indent: 1,
+    priority: 1,
+    comment_count: 0,
+    url: 'https://todoist.com/showTask?id=89358380' },
+
+#+END_SRC
+

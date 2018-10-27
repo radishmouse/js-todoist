@@ -24,7 +24,6 @@ class Todoist {
     return endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   }
 
-
   _get(endpoint, params={}) {    
     endpoint = this._fmt(endpoint);
     let url = `${URL}${endpoint}`;
@@ -53,9 +52,6 @@ class Todoist {
     return this.tasks(this.INBOX_ID);    
   }
 }
-
-// let T = new Todoist();
-// T.tasks(2194791846).then(console.log);
 
 module.exports = {
   Todoist,
