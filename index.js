@@ -12,8 +12,11 @@ function main() {
       console.log(T);
       return T.inboxTasks();
     })
-    .then(tasks => tasks.map(t => t.content))
-    .then(contentArray => contentArray.map(Todo._parseTodo))
+    .then(arr => {
+      return arr.map(t => Todo.from(t.id, t.content, t.completed));
+    })
+    // .then(tasks => tasks.map(t => t.content))
+    // .then(contentArray => contentArray.map(Todo._parseTodo))
     .then(console.log)
     // .catch(err => console.log('sigh. internet.'))
 }
