@@ -1,5 +1,11 @@
 
-* Example Task JSON
+* My Todoist Inbox is huge.
+
+I keep adding to it from my Android's Share menu. And then it becomes a black hole of sadness, where all my hopes and dreams go to die.
+
+So, my goal with this is to create an app that can grab those todos and put them into a local database, possibly with a more keyboard-friendly (possibly CLI) front-end.
+
+** Example Task JSON
 
 #+BEGIN_SRC js
 
