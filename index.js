@@ -43,11 +43,11 @@ class Todoist {
     return;
   }
 
-  _fmt(endpoint) {
+  static _fmt(endpoint) {
     return endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   }
 
-  _get(endpoint, params={}) {    
+  static _get(endpoint, params={}) {    
     endpoint = this._fmt(endpoint);
     let url = `${URL}${endpoint}`;
     const req = axios.get(url, {
@@ -61,13 +61,13 @@ class Todoist {
   }
 
   projects() {
-    return this._get('/projects')
+    return this.constructor._get('/projects')
       .then(r => r.data);
   }
 
   tasks(project_id) {
     const params = { project_id };
-    return this._get('/tasks', params)
+    return this.constructor._get('/tasks', params)
       .then(r => r.data);
   }
 
