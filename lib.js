@@ -16,6 +16,8 @@ class Todo {
     // create a `new Todo` object using the format provided by the
     // Todoist API, where the `content` includes the title and
     // description.
+    let {title, description} = Todo._parseTodo(content);
+    return new Todo(id, title, description, completed);
   }
 
   static _parseTodo(content) {
@@ -24,7 +26,6 @@ class Todo {
     // the URL)
     const isUrl = p => p.startsWith('http');
 
-    debugger;
     let parts = content.split(' ');
     let urls = parts.filter(isUrl);
 
@@ -38,7 +39,11 @@ class Todo {
       content = url;
     }
     
-    return [content, url];
+    return {
+      title: content,
+      description: url
+    };
+
   }  
 }
 
