@@ -12,7 +12,9 @@ class Todo {
     this.completed = completed;
   }
 
-  static from(id, content, completed) {
+  // Uses destructuring to pluck values out of JSON object sent back
+  // from the API
+  static from({id, content, completed}) {
     // create a `new Todo` object using the format provided by the
     // Todoist API, where the `content` includes the title and
     // description.

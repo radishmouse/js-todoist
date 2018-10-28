@@ -12,9 +12,7 @@ function main() {
       console.log(T);
       return T.inboxTasks();
     })
-    .then(arr => {
-      return arr.map(t => Todo.from(t.id, t.content, t.completed));
-    })
+    .then(arr => arr.map(Todo.from))
     // .then(tasks => tasks.map(t => t.content))
     // .then(contentArray => contentArray.map(Todo._parseTodo))
     .then(console.log)
