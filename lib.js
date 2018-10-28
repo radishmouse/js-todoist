@@ -31,12 +31,15 @@ class Todo {
     let parts = content.split(' ');
     let urls = parts.filter(isUrl);
 
+    // Get rid of extraneous parens added by Todoist Android app
     content = parts.filter(p => !isUrl(p)).join(' ');
     content = content.replace('(', '');
     content = content.replace(')', '');
 
+    // Assume that there's only one URL...
     let url = urls[0];
-    
+
+    // Use the URL if there's no other textual desc
     if (!content) {
       content = url;
     }
@@ -45,35 +48,36 @@ class Todo {
       title: content,
       description: url
     };
-
   }  
 }
 
 class Todoist {
   constructor() {
-    // this.projects = {};
     this.INBOX_ID = 0;
-    // this.tasks = [];
   }
 
   init() {
-
+    // The point right now is to clean up the Inbox, which keeps
+    // filling up. So, let's only worry about getting the information
+    // for that project.
+    
     return this.projects()
-      .then(d => d.filter(t => t.name === INBOX_NAME))
+      .then(ps => ps.filter(p => p.name === INBOX_NAME))
       .then(([inbox, ...rest]) => this.INBOX_ID = inbox.id)
       .then(() => {
         console.log(`Finished initializing Todoist with Inbox ID ${this.INBOX_ID}`);
-        // return this;
       });
-
-}
+  }
 
   static _fmt(endpoint) {
+    // Adds the leading '/' if it is not present.
     return endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   }
 
-  static _get(endpoint, params={}) {    
+  static _get(endpoint, params={}) {
+    // Make sure that `endpoint` starts with a leading '/'
     endpoint = this._fmt(endpoint);
+    
     let url = `${URL}${endpoint}`;
     const req = axios.get(url, {
       ...params,
@@ -97,7 +101,6 @@ class Todoist {
   }
 
   inboxTasks() {
-    // console.log(this);
     return this.tasks(this.INBOX_ID);    
   }
 }
