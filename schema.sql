@@ -4,8 +4,8 @@
 
 create table todos (
   id serial primary key,
-  title varchar(255) not null,
-  url varchar(255) not null,
+  title text not null,
+  url text ,
   completed_on timestamp,
   remote_id bigint
 );
