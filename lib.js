@@ -5,9 +5,9 @@ const URL = `https://beta.todoist.com/API/v8`;
 const INBOX_NAME = 'Inbox';
 
 class Todo {
-  constructor(title, description, completed=false, remote_id=-1) {
+  constructor(title, description, completed=false, remoteId=-1) {
     // this.id = id;
-    this.remote_id = remote_id;    
+    this.remoteId = remoteId;    
     this.title = title;
     this.description = description;
     this.completed = completed;
@@ -22,7 +22,7 @@ class Todo {
     let {title, description} = Todo._parseTodo(content);
 
     // Note that the `id` value passed to the constructor is the 
-    return new Todo(title, description, completed, remote_id);
+    return new Todo(title, description, completed, id);
   }
 
   static _parseTodo(content) {
