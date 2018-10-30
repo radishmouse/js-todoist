@@ -4,8 +4,16 @@ const URL = `https://beta.todoist.com/API/v8`;
 
 const INBOX_NAME = 'Inbox';
 
+const pgp = require('pg-promise')();
+const db = pgp({
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME
+});
+
+
+
 class Todo {
-  constructor(title, description, completed=false, remoteId=-1) {
+  constructor(title, description, completed=false, remoteId=0) {
     // this.id = id;
     this.remoteId = remoteId;    
     this.title = title;
@@ -51,7 +59,32 @@ class Todo {
       title: content,
       description: url
     };
+  }
+
+  static findAll(params) {
+    return db.any(`select * from todos`)
+      .catch(err => console.log(err));
   }  
+
+  static findByRemoteId(id) {
+    return db.one(`select * from todos where remote_id = $1`, id);
+  }
+
+  async save() {
+    // saves to the database
+    if (this.remoteId) {
+      // see if I already exist in the db, based on `this.remoteId`
+      let current = await Todo.findByRemoteId(this.remoteId);
+      // if so, we'll update
+      if (current) {
+        console.log('it exists, let\'s update it');
+      } else {
+        console.log('there are nuthings. let us to updatey');
+        // return db.one();
+      }
+      // if not, insert a new record      
+    }
+  }
 }
 
 class Todoist {
