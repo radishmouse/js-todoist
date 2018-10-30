@@ -5,16 +5,17 @@ const {
 } = require('./lib');
 
 function main() {
-  Todo.findAll()
-    .then(console.log)
-    .catch(console.log)
-  // let T = new Todoist();
-  // T.init()
-  //   .then(() => {
-  //     console.log('about to log T');
-  //     console.log(T);
-  //     return T.inboxTasks();
-  //   })
+  // Todo.findAll()
+  // .then(console.log)
+  // .catch(console.log)
+  let T = new Todoist();
+  T.init()
+    .then(() => {
+      // console.log('about to log T');
+      console.log(T);
+      console.log(T.INBOX_ID)
+      return T.importInbox();
+    })
   //   .then(arr => arr.map(Todo.from))
   //   // .then(tasks => tasks.map(t => t.content))
   //   // .then(contentArray => contentArray.map(Todo._parseTodo))

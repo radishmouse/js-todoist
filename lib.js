@@ -10,14 +10,11 @@ const db = pgp({
   database: process.env.DB_NAME
 });
 
-
-
 class Todo {
-  constructor(title, description, completed=false, remoteId=0) {
-    // this.id = id;
+  constructor(title, url, completed=false, remoteId=0) {
     this.remoteId = remoteId;    
     this.title = title;
-    this.description = description;
+    this.url = url;
     this.completed = completed;
   }
 
@@ -27,10 +24,10 @@ class Todo {
     // create a `new Todo` object using the format provided by the
     // Todoist API, where the `content` includes the title and
     // description.
-    let {title, description} = Todo._parseTodo(content);
+    let {title, url} = Todo._parseTodo(content);
 
     // Note that the `id` value passed to the constructor is the 
-    return new Todo(title, description, completed, id);
+    return new Todo(title, url, completed, id);
   }
 
   static _parseTodo(content) {
@@ -39,13 +36,16 @@ class Todo {
     // the URL)
     const isUrl = p => p.startsWith('http');
 
+    // Get rid of extraneous parens added by Todoist Android app
+    content = content.replace('(', ' ');
+    content = content.replace(')', ' ');
+    content = content.replace('[', ' ');
+    content = content.replace(']', ' ');
+    
     let parts = content.split(' ');
     let urls = parts.filter(isUrl);
-
-    // Get rid of extraneous parens added by Todoist Android app
-    content = parts.filter(p => !isUrl(p)).join(' ');
-    content = content.replace('(', '');
-    content = content.replace(')', '');
+    debugger;
+    content = parts.filter(p => !isUrl(p)).join(' ').trim();
 
     // Assume that there's only one URL...
     let url = urls[0];
@@ -54,10 +54,12 @@ class Todo {
     if (!content) {
       content = url;
     }
+
+    // console.log(url);
     
     return {
       title: content,
-      description: url
+      url
     };
   }
 
@@ -67,7 +69,12 @@ class Todo {
   }  
 
   static findByRemoteId(id) {
-    return db.one(`select * from todos where remote_id = $1`, id);
+    return db.any(`select * from todos where remote_id = $1`, id)
+      .then(([result]) => {
+        const {title, url, completed_on, remote_id} = result;
+        return new Todo(title, url, (completed_on != null), remote_id);
+      })
+      .catch(console.warn);
   }
 
   async save() {
@@ -77,13 +84,24 @@ class Todo {
       let current = await Todo.findByRemoteId(this.remoteId);
       // if so, we'll update
       if (current) {
-        console.log('it exists, let\'s update it');
+        console.log(current);
+        console.log(`Existing todo with remoteId: ${current.remoteId}`);
+        return db.none(
+          `update todos set title=$1, url=$2 where remote_id=$3`,
+          [this.title, this.url, this.remoteId]
+        )
+          .catch(console.warn);
+
       } else {
-        console.log('there are nuthings. let us to updatey');
-        // return db.one();
+        console.log('Inserting new todo with remoteId ${this.remoteId}');
+        return db.one(
+          `insert into todos (title, url, remote_id) values ($1, $2, $3)`,
+          [this.title, this.url, this.remoteId]
+        )
+          .catch(console.warn);
       }
-      // if not, insert a new record      
     }
+    return null;
   }
 }
 
@@ -116,7 +134,7 @@ class Todoist {
     
     let url = `${URL}${endpoint}`;
     const req = axios.get(url, {
-      ...params,
+      params,
       headers:  {
         "Authorization": `Bearer ${process.env.API_TOKEN}`
       }
@@ -138,6 +156,15 @@ class Todoist {
 
   inboxTasks() {
     return this.tasks(this.INBOX_ID);    
+  }
+
+  importInbox() {
+    this.inboxTasks()
+      .then(taskArray => {
+        let todoArray = taskArray.map(Todo.from);
+        // console.log(todoArray.length);
+        todoArray.forEach(todo => todo.save());
+      });
   }
 }
 
