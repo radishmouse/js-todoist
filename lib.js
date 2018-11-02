@@ -82,26 +82,25 @@ class Todo {
     if (this.remoteId) {
       // see if I already exist in the db, based on `this.remoteId`
       let current = await Todo.findByRemoteId(this.remoteId);
-      // if so, we'll update
+
       if (current) {
-        console.log(current);
+        // if so, we'll update        
         console.log(`Existing todo with remoteId: ${current.remoteId}`);
         return db.none(
           `update todos set title=$1, url=$2 where remote_id=$3`,
           [this.title, this.url, this.remoteId]
-        )
-          .catch(console.warn);
-
+        ).catch(console.warn);
       } else {
-        console.log('Inserting new todo with remoteId ${this.remoteId}');
+        // If not, we create a new one        
+        console.log(`Inserting new todo with remoteId ${this.remoteId}`);
         return db.one(
           `insert into todos (title, url, remote_id) values ($1, $2, $3)`,
           [this.title, this.url, this.remoteId]
-        )
-          .catch(console.warn);
+        ).catch(console.warn);
       }
     }
-    return null;
+    return null; // Not possible to reach this point, just satisfying
+                 // the linter.
   }
 }
 
