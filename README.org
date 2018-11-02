@@ -22,7 +22,6 @@ So, my goal with this is to create an app that can grab those todos and put them
     url: 'https://todoist.com/showTask?id=89358380' },
 
 #+END_SRC
-
 ** Modeling the TODOs in SQL
 
 This is pretty straight-forward. Unless we want to mimic the users and projects on Todoist, we will simply keep track of completion.
@@ -40,3 +39,10 @@ create table todos (
 );
 
 #+END_SRC
+
+
+** Building a front-end
+
+For this, I'll be using Express, and just returning ES6 template strings.
+
+
