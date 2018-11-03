@@ -101,7 +101,6 @@ class Todo {
       let c = new Date();    
       this.completed_on = `${c.getFullYear()}-${padDate(c.getMonth())}-${padDate(c.getDate())}`;
     }
-
   }
 
   async save() {
