@@ -21,19 +21,20 @@ function page(content) {
 
 function todoToListItem(todo) {
   let href = todo.url ? `href="${todo.url}"`: '';
-  let checked = todo.completed_on ? 'checked' : '';
+  let checked = todo.completed_on ? 'checked=checked' : '';
+  
   return `
   <li>
-    <form class="todo-form">
+    <form class="todo-form" method="POST" action="/${todo.id}">
       <input 
         type="checkbox" 
-        value="${todo.id}"
         ${checked}
+        onChange="this.form.submit()"
       >
     </form>
 
     <a ${href} target="_blank" rel="noopener noreferrer">
-      ${todo.title}
+      ${todo.title} (${todo.id})
     </a>
   </li>
   `;

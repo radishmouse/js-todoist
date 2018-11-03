@@ -10,6 +10,13 @@ const db = pgp({
   database: process.env.DB_NAME
 });
 
+
+function padDate(val) {
+  val = val.toString();
+  return val.length < 2 ? `0${val}` : val;    
+}
+
+
 class Todo {
   constructor(title, url, completed=false, remoteId=0) {
     this.remoteId = remoteId;    
@@ -55,8 +62,6 @@ class Todo {
       content = url;
     }
 
-    // console.log(url);
-    
     return {
       title: content,
       url
@@ -64,7 +69,7 @@ class Todo {
   }
 
   static findAll(params) {
-    return db.any(`select * from todos`)
+    return db.any(`select * from todos order by id`)
       .catch(err => console.log(err));
   }  
 
@@ -77,18 +82,40 @@ class Todo {
       .catch(console.warn);
   }
 
+  static findById(id) {
+    return db.any(`select * from todos where id = $1`, id)
+      .then(([result]) => {
+        const {title, url, completed_on, remote_id} = result;
+        return new Todo(title, url, (completed_on != null), remote_id);
+      })
+      .catch(console.warn);
+  }
+  
+  toggleCompleted() {
+    if (this.completed) {
+      // if checked, set its `completed_on` to null
+      this.completed_on = null;
+
+    } else {
+      // else, set its `completed_on` to current datestamp
+      let c = new Date();    
+      this.completed_on = `${c.getFullYear()}-${padDate(c.getMonth())}-${padDate(c.getDate())}`;
+    }
+
+  }
+
   async save() {
     // saves to the database
     if (this.remoteId) {
       // see if I already exist in the db, based on `this.remoteId`
       let current = await Todo.findByRemoteId(this.remoteId);
-
+      
       if (current) {
         // if so, we'll update        
         console.log(`Existing todo with remoteId: ${current.remoteId}`);
         return db.none(
-          `update todos set title=$1, url=$2 where remote_id=$3`,
-          [this.title, this.url, this.remoteId]
+          `update todos set title=$1, url=$2, completed_on=$4 where remote_id=$3`,
+          [this.title, this.url, this.remoteId, this.completed_on]
         ).catch(console.warn);
       } else {
         // If not, we create a new one        
