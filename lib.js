@@ -18,23 +18,23 @@ function padDate(val) {
 
 
 class Todo {
-  constructor(title, url, completed=false, remoteId=0) {
+  constructor(title, url, completed_on=false, remoteId=0) {
     this.remoteId = remoteId;    
     this.title = title;
     this.url = url;
-    this.completed = completed;
+    this.completed_on = completed_on;
   }
 
   // Uses destructuring to pluck values out of JSON object sent back
   // from the API
-  static from({id, content, completed}) {
+  static from({id, content, completed_on}) {
     // create a `new Todo` object using the format provided by the
     // Todoist API, where the `content` includes the title and
     // description.
     let {title, url} = Todo._parseTodo(content);
 
     // Note that the `id` value passed to the constructor is the 
-    return new Todo(title, url, completed, id);
+    return new Todo(title, url, completed_on, id);
   }
 
   static _parseTodo(content) {
@@ -77,7 +77,7 @@ class Todo {
     return db.any(`select * from todos where remote_id = $1`, id)
       .then(([result]) => {
         const {title, url, completed_on, remote_id} = result;
-        return new Todo(title, url, (completed_on != null), remote_id);
+        return new Todo(title, url, completed_on, remote_id);
       })
       .catch(console.warn);
   }
@@ -86,13 +86,13 @@ class Todo {
     return db.any(`select * from todos where id = $1`, id)
       .then(([result]) => {
         const {title, url, completed_on, remote_id} = result;
-        return new Todo(title, url, (completed_on != null), remote_id);
+        return new Todo(title, url, completed_on, remote_id);
       })
       .catch(console.warn);
   }
   
   toggleCompleted() {
-    if (this.completed) {
+    if (this.completed_on) {
       // if checked, set its `completed_on` to null
       this.completed_on = null;
 
@@ -101,7 +101,6 @@ class Todo {
       let c = new Date();    
       this.completed_on = `${c.getFullYear()}-${padDate(c.getMonth())}-${padDate(c.getDate())}`;
     }
-
   }
 
   async save() {
