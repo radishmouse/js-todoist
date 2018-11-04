@@ -4,12 +4,25 @@ const URL = `https://beta.todoist.com/API/v8`;
 
 const INBOX_NAME = 'Inbox';
 
-const pgp = require('pg-promise')();
-const db = pgp({
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME
+const DEBUG = true;
+
+const pgp = require('pg-promise')({
+  query: e => {
+    if (DEBUG) {
+      console.log('QUERY: ', e.query);
+      if (e.params) {
+        console.log('PARAMS:', e.params);
+      }
+    }      
+  }  
 });
 
+const options = {
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME
+};
+
+const db = pgp(options);
 
 function padDate(val) {
   val = val.toString();
@@ -73,22 +86,22 @@ class Todo {
       .catch(err => console.log(err));
   }  
 
-  static findByRemoteId(id) {
-    return db.any(`select * from todos where remote_id = $1`, id)
+  static _findBy(field, val) {
+    // return db.any(`select * from todos where $1:raw = $2`, [field, val])    
+    return db.any(`select * from todos where $1:name = $2`, [field, val])
       .then(([result]) => {
         const {title, url, completed_on, remote_id} = result;
         return new Todo(title, url, completed_on, remote_id);
       })
-      .catch(console.warn);
+      .catch(console.warn);    
+  }
+  
+  static findByRemoteId(id) {
+    return Todo._findBy('remote_id', id);
   }
 
   static findById(id) {
-    return db.any(`select * from todos where id = $1`, id)
-      .then(([result]) => {
-        const {title, url, completed_on, remote_id} = result;
-        return new Todo(title, url, completed_on, remote_id);
-      })
-      .catch(console.warn);
+    return Todo._findBy('id', id);
   }
   
   toggleCompleted() {
