@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 
 const {page, todoList} = require('./templates');
-const {Todo} = require('./lib');
+const {Todo, Todoist} = require('./lib');
 
 app.use(express.static('public'));
 
@@ -12,7 +12,7 @@ app.get('/', async (req, res) => {
     .end(page(todos));
 });
 
-app.post('/:id', async (req, res) => {
+app.post('/:id([0-9]*)', async (req, res) => {
   let {id} = req.params;
   let todo = await Todo.findById(id);
   
@@ -20,6 +20,19 @@ app.post('/:id', async (req, res) => {
   await todo.save();
   
   res.redirect('/');
+});
+
+app.post('/import', async (req, res) => {
+  let T = new Todoist();
+  T.init()
+    .then(() => {
+      console.log(T.INBOX_ID);
+      return T.importInbox();
+    })
+    .then((vals) => {
+      console.log(`Imported ${vals.length} todos from Todoist`);
+      res.redirect('/');
+    });
 });
 
 module.exports = () => {

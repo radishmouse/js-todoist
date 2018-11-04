@@ -21,8 +21,8 @@ function page(content) {
 
 function todoToListItem(todo) {
   let href = todo.url ? `href="${todo.url}"`: '';
-  let checked = todo.completed_on ? 'checked=checked' : '';
-  
+  let checked = todo.completedOn ? 'checked=checked' : '';
+
   return `
   <li>
     <form class="todo-form" method="POST" action="/${todo.id}">
@@ -45,6 +45,9 @@ async function todoList() {
   let todoListItems = todosArray.map(todoToListItem).join('');
 
   return `
+    <form action="/import" method="POST">
+      <input type="submit" value="Import from Todoist">
+    </form>
     <ul class="todos">
       ${todoListItems}
     </ul>

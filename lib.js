@@ -29,11 +29,12 @@ function padDate(val) {
 
 
 class Todo {
-  constructor(title, url, completed_on=false, remoteId=0) {
+  constructor(title, url, completedOn=null, remoteId=0, id=0) {
+    this.id = id;
     this.remoteId = remoteId;    
     this.title = title;
     this.url = url;
-    this.completed_on = completed_on;
+    this.completedOn = completedOn;
   }
 
   // Uses destructuring to pluck values out of JSON object sent back
@@ -81,15 +82,27 @@ class Todo {
 
   static findAll(params) {
     return db.any(`select * from todos order by id`)
+      .then(todos => {
+        return todos.map(({title, url, completed_on, remote_id, id}) => {
+          return new Todo(title, url, completed_on, remote_id, id);
+        });
+      })
       .catch(err => console.log(err));
   }  
 
   static _findBy(field, val) {
+    // When specifying a column name, use either :raw or :name so that
+    // it doesn't get quoted
+
     // return db.any(`select * from todos where $1:raw = $2`, [field, val])    
     return db.any(`select * from todos where $1:name = $2`, [field, val])
       .then(([result]) => {
-        const {title, url, completed_on, remote_id} = result;
-        return new Todo(title, url, completed_on, remote_id);
+        if (result) {
+          const {title, url, completed_on, remote_id} = result;
+          return new Todo(title, url, completed_on, remote_id);          
+        } else {
+          return null;
+        }
       })
       .catch(console.warn);    
   }
@@ -103,14 +116,14 @@ class Todo {
   }
   
   toggleCompleted() {
-    if (this.completed_on) {
-      // if checked, set its `completed_on` to null
-      this.completed_on = null;
+    if (this.completedOn) {
+      // if checked, set its `completedOn` to null
+      this.completedOn = null;
 
     } else {
       // else, set its `completed_on` to current datestamp
       let c = new Date();    
-      this.completed_on = `${c.getFullYear()}-${padDate(c.getMonth())}-${padDate(c.getDate())}`;
+      this.completedOn = `${c.getFullYear()}-${padDate(c.getMonth())}-${padDate(c.getDate())}`;
     }
   }
 
@@ -125,19 +138,23 @@ class Todo {
         console.log(`Existing todo with remoteId: ${current.remoteId}`);
         return db.none(
           `update todos set title=$1, url=$2, completed_on=$4 where remote_id=$3`,
-          [this.title, this.url, this.remoteId, this.completed_on]
+          [this.title, this.url, this.remoteId, this.completedOn]
         ).catch(console.warn);
       } else {
         // If not, we create a new one        
         console.log(`Inserting new todo with remoteId ${this.remoteId}`);
         return db.one(
-          `insert into todos (title, url, remote_id) values ($1, $2, $3)`,
+          `insert into todos (title, url, remote_id) values ($1, $2, $3) returning id`,
           [this.title, this.url, this.remoteId]
         ).catch(console.warn);
       }
+    } else {
+      console.log(`Inserting new todo (no remoteId)`);
+      return db.one(
+        `insert into todos (title, url) values ($1, $2) returning id`,
+        [this.title, this.url]
+      ).catch(console.warn);
     }
-    return null; // Not possible to reach this point, just satisfying
-                 // the linter.
   }
 }
 
@@ -195,11 +212,11 @@ class Todoist {
   }
 
   importInbox() {
-    this.inboxTasks()
+    return this.inboxTasks()
       .then(taskArray => {
         let todoArray = taskArray.map(Todo.from);
-        // console.log(todoArray.length);
-        todoArray.forEach(todo => todo.save());
+        let promiseArray = todoArray.map(todo => todo.save());
+        return Promise.all(promiseArray);
       });
   }
 }
