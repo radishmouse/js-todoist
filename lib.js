@@ -4,11 +4,9 @@ const URL = `https://beta.todoist.com/API/v8`;
 
 const INBOX_NAME = 'Inbox';
 
-const DEBUG = true;
-
 const pgp = require('pg-promise')({
   query: e => {
-    if (DEBUG) {
+    if (process.env.DEBUG) {
       console.log('QUERY: ', e.query);
       if (e.params) {
         console.log('PARAMS:', e.params);
