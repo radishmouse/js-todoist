@@ -1,5 +1,3 @@
-const {Todo} = require('./lib');
-
 function page(content) {
   return `
 <!doctype html>
@@ -40,10 +38,8 @@ function todoToListItem(todo) {
   `;
 }
 
-async function todoList() {
-  let todosArray = await Todo.findAll();
+async function todoList(todosArray) {
   let todoListItems = todosArray.map(todoToListItem).join('');
-
   return `
     <form action="/import" method="POST">
       <input type="submit" value="Import from Todoist">

@@ -7,7 +7,9 @@ const {Todo, Todoist} = require('./lib');
 app.use(express.static('public'));
 
 app.get('/', async (req, res) => {
-  let todos = await todoList();
+  let todosArray = await Todo.findAll();  
+  let todos = await todoList(todosArray);
+
   res.status(200)
     .end(page(todos));
 });
