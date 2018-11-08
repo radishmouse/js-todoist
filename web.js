@@ -1,5 +1,8 @@
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 
 const {
   page,
@@ -19,15 +22,8 @@ app.get('/', async (req, res) => {
     .end(page(todos));
 });
 
-app.get('/:id([0-9]*)', async (req, res) => {
-  let {id} = req.params;
-  let todo = await Todo.findById(id);
 
-  res.status(200)
-    .end(page(form(todo)));
-});
-
-app.post('/:id([0-9]*)', async (req, res) => {
+app.post('/:id([0-9]+)', async (req, res) => {
   let {id} = req.params;
   let todo = await Todo.findById(id);
   
@@ -36,6 +32,34 @@ app.post('/:id([0-9]*)', async (req, res) => {
   
   res.redirect('/');
 });
+
+app.get('/:id(\\d+)/edit', async (req, res) => {
+  console.log(req.params);
+  let {id} = req.params;
+  let todo = await Todo.findById(id);
+  
+  res.status(200)
+    .end(page(form(todo)));
+});
+
+app.post('/:id([0-9]+)/edit', async (req, res) => {
+  let {id} = req.params;
+  let {
+    title,
+    url,
+    completed
+  } = req.body;
+
+
+  let todo = await Todo.findById(id);
+  todo.title = title;
+  todo.url = url;
+  todo.completedOn = completed;
+  await todo.save();
+  
+  res.redirect(`/${todo.id}/edit`);
+});
+
 
 app.post('/import', async (req, res) => {
   let T = new Todoist();

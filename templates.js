@@ -22,13 +22,13 @@ function form(todo) {
   let checked = todo.completedOn ? 'checked=checked' : '';
   
   return `
-<form method="POST">
+<form method="POST" action="/${todo.id}/edit">
 <label> Title
   <input name="title" value="${todo.title}">
 </label>
 <br>
 <label> URL
-  <input name="url" value="${todo.url}">
+  <input name="url" value="${todo.url ? todo.url : ''}">
 </label>
 <br>
   <input name="completed" type="checkbox" ${checked}>
@@ -55,7 +55,7 @@ function todoToListItem(todo) {
     <a ${href} target="_blank" rel="noopener noreferrer">
       ${todo.title} (${todo.id})
     </a>
-    (<a href="/${todo.id}">edit</a>)
+    (<a href="/${todo.id}/edit">edit</a>)
   </li>
   `;
 }
