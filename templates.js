@@ -17,6 +17,27 @@ function page(content) {
   `;
 }
 
+function form(todo) {
+  let href = todo.url ? `href="${todo.url}"`: '';
+  let checked = todo.completedOn ? 'checked=checked' : '';
+  
+  return `
+<form method="POST">
+<label> Title
+  <input name="title" value="${todo.title}">
+</label>
+<br>
+<label> URL
+  <input name="url" value="${todo.url}">
+</label>
+<br>
+  <input name="completed" type="checkbox" ${checked}>
+<br>
+  <input type="submit">
+</form>
+`;
+}
+
 function todoToListItem(todo) {
   let href = todo.url ? `href="${todo.url}"`: '';
   let checked = todo.completedOn ? 'checked=checked' : '';
@@ -34,11 +55,12 @@ function todoToListItem(todo) {
     <a ${href} target="_blank" rel="noopener noreferrer">
       ${todo.title} (${todo.id})
     </a>
+    (<a href="/${todo.id}">edit</a>)
   </li>
   `;
 }
 
-async function todoList(todosArray) {
+function todoList(todosArray) {
   let todoListItems = todosArray.map(todoToListItem).join('');
   return `
     <form action="/import" method="POST">
@@ -52,5 +74,6 @@ async function todoList(todosArray) {
 
 module.exports = {
   page,
-  todoList
+  todoList,
+  form
 };

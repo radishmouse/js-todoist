@@ -1,17 +1,30 @@
 const express = require('express');
 const app = express();
 
-const {page, todoList} = require('./templates');
+const {
+  page,
+  todoList,
+  form
+} = require('./templates');
+
 const {Todo, Todoist} = require('./lib');
 
 app.use(express.static('public'));
 
 app.get('/', async (req, res) => {
   let todosArray = await Todo.findAll();  
-  let todos = await todoList(todosArray);
+  let todos = todoList(todosArray);
 
   res.status(200)
     .end(page(todos));
+});
+
+app.get('/:id([0-9]*)', async (req, res) => {
+  let {id} = req.params;
+  let todo = await Todo.findById(id);
+
+  res.status(200)
+    .end(page(form(todo)));
 });
 
 app.post('/:id([0-9]*)', async (req, res) => {
