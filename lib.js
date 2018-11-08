@@ -98,8 +98,8 @@ class Todo {
     return db.any(`select * from todos where $1:name = $2`, [field, val])
       .then(([result]) => {
         if (result) {
-          const {title, url, completed_on, remote_id} = result;
-          return new Todo(title, url, completed_on, remote_id);          
+          const {title, url, completed_on, remote_id, id} = result;
+          return new Todo(title, url, completed_on, remote_id, id);          
         } else {
           return null;
         }
