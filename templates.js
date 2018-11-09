@@ -1,5 +1,3 @@
-const {Todo} = require('./lib');
-
 function page(content) {
   return `
 <!doctype html>
@@ -14,9 +12,34 @@ function page(content) {
     <section class="todos-container">
       ${content}
     </section>
+    <script src="/scripts/index.js"></script>
   </body>
 </html>
   `;
+}
+
+function form(todo) {
+  let href = todo.url ? `href="${todo.url}"`: '';
+  let checked = todo.completedOn ? 'checked=checked' : '';
+  
+  return `
+<a href="/">Back to list</a>
+<form method="POST" action="/${todo.id}/edit">
+<label> Title
+  <input name="title" value="${todo.title}">
+</label>
+<br>
+<label> URL
+  <input name="url" value="${todo.url ? todo.url : ''}">
+</label>
+<br>
+<label> Completed
+  <input name="completed" type="checkbox" ${checked}>
+</label>
+<br>
+  <input type="submit">
+</form>
+`;
 }
 
 function todoToListItem(todo) {
@@ -25,25 +48,24 @@ function todoToListItem(todo) {
 
   return `
   <li>
-    <form class="todo-form" method="POST" action="/${todo.id}">
+    <form class="todo-form" method="POST" action="/${todo.id}/toggle">
       <input 
         type="checkbox" 
         ${checked}
-        onChange="this.form.submit()"
+        data-toggle-trigger
       >
     </form>
 
     <a ${href} target="_blank" rel="noopener noreferrer">
       ${todo.title} (${todo.id})
     </a>
+    (<a href="/${todo.id}/edit">edit</a>)
   </li>
   `;
 }
 
-async function todoList() {
-  let todosArray = await Todo.findAll();
+function todoList(todosArray) {
   let todoListItems = todosArray.map(todoToListItem).join('');
-
   return `
     <form action="/import" method="POST">
       <input type="submit" value="Import from Todoist">
@@ -56,5 +78,6 @@ async function todoList() {
 
 module.exports = {
   page,
-  todoList
+  todoList,
+  form
 };
