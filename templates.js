@@ -12,6 +12,7 @@ function page(content) {
     <section class="todos-container">
       ${content}
     </section>
+    <script src="/scripts/index.js"></script>
   </body>
 </html>
   `;
@@ -47,11 +48,11 @@ function todoToListItem(todo) {
 
   return `
   <li>
-    <form class="todo-form" method="POST" action="/${todo.id}">
+    <form class="todo-form" method="POST" action="/${todo.id}/toggle">
       <input 
         type="checkbox" 
         ${checked}
-        onChange="this.form.submit()"
+        data-toggle-trigger
       >
     </form>
 

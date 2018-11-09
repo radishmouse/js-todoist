@@ -23,7 +23,7 @@ app.get('/', async (req, res) => {
 });
 
 
-app.post('/:id([0-9]+)', async (req, res) => {
+app.post('/:id([0-9]+)/toggle', async (req, res) => {
   let {id} = req.params;
   let todo = await Todo.findById(id);
   
