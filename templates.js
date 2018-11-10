@@ -30,7 +30,7 @@ function form(todo) {
 </label>
 <br>
 <label> URL
-  <input name="url" value="${todo.url ? todo.url : ''}">
+  <input name="url" value="${href}">
 </label>
 <br>
 <label> Completed
